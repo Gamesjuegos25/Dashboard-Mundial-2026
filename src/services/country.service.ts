@@ -94,6 +94,27 @@ const ISO3_TO_NAME: Record<string, string> = {
 export async function fetchCountry(iso3: string): Promise<CountryData> {
   if (SPECIAL_COUNTRIES[iso3]) return SPECIAL_COUNTRIES[iso3];
   const name = ISO3_TO_NAME[iso3] ?? iso3;
+  // Try alpha lookup first
+  try {
+    const { data } = await axios.get(`https://restcountries.com/v3.1/alpha/${iso3}`);
+    const c = Array.isArray(data) ? data[0] : data;
+    if (c) {
+      return {
+        name: c.name?.common ?? name,
+        officialName: c.name?.official ?? name,
+        flag: c.flags?.svg ?? c.flags?.png ?? '',
+        capital: c.capital?.[0] ?? 'N/A',
+        region: c.region ?? 'N/A',
+        languages: Object.values(c.languages ?? {}),
+        currencies: Object.values(c.currencies ?? {}).map((cu: any) => `${cu.name} (${cu.symbol})`),
+        population: c.population ?? 0,
+        timezones: c.timezones ?? [],
+      } as CountryData;
+    }
+  } catch (alphaErr) {
+    // fallback to name search below
+  }
+
   try {
     const { data } = await axios.get(`https://restcountries.com/v3.1/name/${name}`, {
       params: {
