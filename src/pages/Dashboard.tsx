@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import matches from "../data/matches.json";
 import { squads, getFlagUrl, hostCountryName } from "../data/squads";
+import { useCountry } from "../hooks/useCountry";
 
 interface Match {
   matchId: number;
@@ -54,9 +55,6 @@ const VENUE_IMAGES: Record<string, string> = {
 };
 const DEFAULT_STADIUM = "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&q=80";
 
-const COUNTRY_WIKI: Record<string, string> = {
-  US: "United_States", MX: "Mexico", CA: "Canada",
-};
 
 // Paleta FIFA 2026
 const C = {
@@ -330,25 +328,128 @@ function StadiumTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB PAÍS ──────────────────────────────────────────────────────
-function CountryTab({ match }: { match: Match }) {
-  const { data, loading } = useWiki(COUNTRY_WIKI[match.country] ?? getCountryName(match.country));
-  const countryName = hostCountryName[match.country] ?? getCountryName(match.country);
+// ── TAB PAÍS (REST Countries) ────────────────────────────────────
+function CountrySkeleton() {
   return (
-    <div style={{ padding: "20px 20px 28px" }}>
-      {data?.thumbnail && (
-        <div style={{ borderRadius: 12, overflow: "hidden", marginBottom: 16, height: 160, position: "relative" }}>
-          <img src={data.thumbnail} alt={countryName} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.65)" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,13,26,0.9), transparent)" }} />
-          <div style={{ position: "absolute", bottom: 12, left: 14 }}>
-            <h3 style={{ color: C.white, fontWeight: 900, fontSize: 20, margin: 0 }}>{countryName}</h3>
-          </div>
-        </div>
-      )}
-      <p style={{ color: C.greenBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ display: "inline-block", width: 16, height: 2, background: C.greenBright }} /> Sobre el país anfitrión
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {[100, 85, 92, 70, 88, 60].map((w, i) => (
+        <div key={i} style={{ height: 12, background: C.surface, borderRadius: 5, width: `${w}%`, opacity: 0.5 }} />
+      ))}
+      <p style={{ color: C.grayDark, fontSize: 11, margin: "6px 0 0" }}>Cargando desde REST Countries...</p>
+    </div>
+  );
+}
+
+function CountryInfoBlock({ code, name }: { code: string; name: string }) {
+  const { data, isLoading, isError } = useCountry(code);
+
+  if (isLoading) return <CountrySkeleton />;
+
+  if (isError || !data) {
+    return (
+      <p style={{ color: C.gray, fontSize: 12, textAlign: "center", padding: "12px 0" }}>
+        No se pudo cargar la información de {name}.
       </p>
-      {loading ? <Skeleton /> : <p style={{ color: C.grayLight, fontSize: 13, lineHeight: 1.8, margin: 0 }}>{data?.extract?.slice(0, 600)}{(data?.extract?.length ?? 0) > 600 ? "..." : ""}</p>}
+    );
+  }
+
+  const rows: Array<[string, string]> = [
+    ["Capital", data.capital],
+    ["Región", data.region],
+    ["Idiomas", data.languages.join(", ") || "N/A"],
+    ["Moneda", data.currencies[0] ?? "N/A"],
+    ["Población", data.population.toLocaleString()],
+    ["Zona horaria", data.timezones[0] ?? "N/A"],
+  ];
+
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+        {data.flag && (
+          <img src={data.flag} alt={data.name} style={{ width: 36, height: 24, objectFit: "cover", borderRadius: 4, border: `1px solid ${C.border}` }} />
+        )}
+        <div>
+          <p style={{ color: C.white, fontWeight: 800, fontSize: 14, margin: 0 }}>{data.name}</p>
+          <p style={{ color: C.gray, fontSize: 11, margin: 0 }}>{data.officialName}</p>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {rows.map(([label, value]) => (
+          <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+            <span style={{ color: C.gray }}>{label}</span>
+            <span style={{ color: C.grayLight, fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CountryCompareBlock({ codeA, nameA, codeB, nameB }: { codeA: string; nameA: string; codeB: string; nameB: string }) {
+  const a = useCountry(codeA);
+  const b = useCountry(codeB);
+
+  if (a.isLoading || b.isLoading) return <CountrySkeleton />;
+  if (!a.data || !b.data) return null;
+
+  const popA = a.data.population;
+  const popB = b.data.population;
+  const popDiff = Math.abs(popA - popB);
+  const base = Math.max(popA, popB) || 1;
+  const popPct = ((popDiff / base) * 100).toFixed(1);
+
+  const rows: Array<[string, string, string]> = [
+    ["Población", popA.toLocaleString(), popB.toLocaleString()],
+    ["Región", a.data.region, b.data.region],
+    ["Idiomas", a.data.languages.slice(0, 2).join(", ") || "N/A", b.data.languages.slice(0, 2).join(", ") || "N/A"],
+    ["Moneda", a.data.currencies[0] ?? "N/A", b.data.currencies[0] ?? "N/A"],
+    ["Zona horaria", a.data.timezones[0] ?? "N/A", b.data.timezones[0] ?? "N/A"],
+  ];
+
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14 }}>
+      <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ color: C.gray, borderBottom: `1px solid ${C.border}` }}>
+            <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 800 }}>{nameA}</th>
+            <th style={{ textAlign: "center", padding: "4px 0", fontWeight: 700, color: C.grayDark }}>Indicador</th>
+            <th style={{ textAlign: "right", padding: "4px 0", fontWeight: 800 }}>{nameB}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, valA, valB]) => (
+            <tr key={label} style={{ borderBottom: `1px solid ${C.border}` }}>
+              <td style={{ padding: "6px 0", color: C.grayLight, textAlign: "left" }}>{valA}</td>
+              <td style={{ padding: "6px 0", color: C.gray, textAlign: "center", fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>{label}</td>
+              <td style={{ padding: "6px 0", color: C.grayLight, textAlign: "right" }}>{valB}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p style={{ color: C.gray, fontSize: 11, marginTop: 10, marginBottom: 0 }}>
+        Diferencia de población: <span style={{ color: C.grayLight, fontWeight: 700 }}>{popDiff.toLocaleString()}</span> ({popPct}%)
+      </p>
+    </div>
+  );
+}
+
+function CountryTab({ match }: { match: Match }) {
+  return (
+    <div style={{ padding: "20px 20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
+      <p style={{ color: C.greenBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ display: "inline-block", width: 16, height: 2, background: C.greenBright }} /> Fichas de país (REST Countries)
+      </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <CountryInfoBlock code={match.teamA} name={match.teamAName} />
+        <CountryInfoBlock code={match.teamB} name={match.teamBName} />
+      </div>
+
+      <p style={{ color: C.blueBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ display: "inline-block", width: 16, height: 2, background: C.blueBright }} /> Comparación de selecciones
+      </p>
+
+      <CountryCompareBlock codeA={match.teamA} nameA={match.teamAName} codeB={match.teamB} nameB={match.teamBName} />
     </div>
   );
 }
