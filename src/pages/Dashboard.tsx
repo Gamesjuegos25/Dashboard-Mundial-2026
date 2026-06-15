@@ -472,6 +472,18 @@ function CountryTab({ match }: { match: Match }) {
   );
 }
 
+  // ── TAB RESUMEN (Clima + Países + Comparador, todo junto) ─────────
+  function SummaryTab({ match }: { match: Match }) {
+    return (
+      <div>
+        <WeatherTab match={match} />
+        <div style={{ height: 1, background: C.border, margin: "0 20px" }} />
+        <CountryTab match={match} />
+      </div>
+    );
+  }
+
+
 // ── TAB CONVOCADOS ────────────────────────────────────────────────
 function SquadTab({ match }: { match: Match }) {
   const [teamTab, setTeamTab] = useState<"A" | "B">("A");
@@ -591,16 +603,15 @@ function PlayerCard({ p }: { p: { name: string; club: string; age: number; pos: 
 
 // ── MODAL PARTIDO ─────────────────────────────────────────────────
 function MatchInfoModal({ match, onClose }: { match: Match; onClose: () => void }) {
-  const [tab, setTab] = useState<"squad" | "teams" | "stadium" | "country" | "weather">("squad");
+  const [tab, setTab] = useState<"summary" | "squad" | "teams" | "stadium" | "country" | "weather">("summary");
   const venueImg = VENUE_IMAGES[match.venueName] ?? DEFAULT_STADIUM;
   const status = getMatchStatus(match.date, match.timeLocal);
 
   const TABS = [
+    { key: "summary", label: "📊", title: "Resumen" },
     { key: "squad", label: "👥", title: "Convocados" },
     { key: "teams", label: "🏴", title: "Selecciones" },
     { key: "stadium", label: "🏟️", title: "Estadio" },
-    { key: "country", label: "🌎", title: "País" },
-    { key: "weather", label: "🌤️", title: "Clima" },
   ] as const;
 
   return (
@@ -646,11 +657,10 @@ function MatchInfoModal({ match, onClose }: { match: Match; onClose: () => void 
           ))}
         </div>
 
+        {tab === "summary" && <SummaryTab match={match} />}
         {tab === "squad" && <SquadTab match={match} />}
         {tab === "teams" && <TeamsTab match={match} />}
         {tab === "stadium" && <StadiumTab match={match} />}
-        {tab === "country" && <CountryTab match={match} />}
-        {tab === "weather" && <WeatherTab match={match} />}
       </div>
     </div>
   );
