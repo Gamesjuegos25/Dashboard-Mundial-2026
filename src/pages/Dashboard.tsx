@@ -35,6 +35,24 @@ function getCountryName(code: string): string {
   return map[code] ?? code;
 }
 
+function buildJornadaMap(allMatches: Match[]): Record<number, number> {
+  const byGroup: Record<string, Match[]> = {};
+  for (const m of allMatches) {
+    (byGroup[m.group] ??= []).push(m);
+  }
+  const map: Record<number, number> = {};
+  for (const group of Object.values(byGroup)) {
+    const sorted = [...group].sort((a, b) => {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      return a.timeLocal < b.timeLocal ? -1 : a.timeLocal > b.timeLocal ? 1 : 0;
+    });
+    sorted.forEach((m, i) => {
+      map[m.matchId] = Math.min(Math.floor(i / 2) + 1, 3);
+    });
+  }
+  return map;
+}
+
 const VENUE_IMAGES: Record<string, string> = {
   "Estadio de Ciudad de México": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&q=80",
   "Estadio Guadalajara": "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800&q=80",
@@ -245,7 +263,7 @@ function TeamsTab({ match }: { match: Match }) {
     IRN: "Iran_national_football_team", KSA: "Saudi_Arabia_national_football_team",
     AUS: "Australia_national_soccer_team", NZL: "New_Zealand_national_football_team",
     CMR: "Cameroon_national_football_team", NGA: "Nigeria_national_football_team",
-    COD: "DR_Congo_national_football_team", ZAF: "South_Africa_national_football_team",
+    COD: "DR_Congo_national_football_team", RSA: "South_Africa_national_football_team",
     ALB: "Albania_national_football_team", CZE: "Czech_Republic_national_football_team",
     SCO: "Scotland_national_football_team", BIH: "Bosnia_and_Herzegovina_national_football_team",
     HAI: "Haiti_national_football_team",
@@ -642,7 +660,7 @@ const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const ALL_COUNTRIES = ["US","MX","CA"];
 
 export default function Dashboard() {
-  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [search, setSearch] = useState("");
   const [filterGroup, setFilterGroup] = useState("Todos");
   const [filterStatus, setFilterStatus] = useState("Todos");
@@ -650,7 +668,9 @@ export default function Dashboard() {
   const [filterDate, setFilterDate] = useState("");
   const [filterVenue, setFilterVenue] = useState("Todas");
   const [filterTeam, setFilterTeam] = useState("Todas");
+  const [filterJornada, setFilterJornada] = useState("Todas");
 
+  const jornadaMap = useMemo(() => buildJornadaMap(matches as Match[]), []);
   const venues = useMemo(() => {
     const v = (matches as Match[]).map(m => m.venueName);
     return ["Todas", ...Array.from(new Set(v))];
@@ -665,6 +685,7 @@ export default function Dashboard() {
   const filtered = useMemo(() => {
     return (matches as Match[]).filter(m => {
       const status = getMatchStatus(m.date, m.timeLocal);
+      const jornada = jornadaMap[m.matchId];
       return (
         (search === "" || m.teamAName.toLowerCase().includes(search.toLowerCase()) || m.teamBName.toLowerCase().includes(search.toLowerCase()) || m.venueName.toLowerCase().includes(search.toLowerCase())) &&
         (filterGroup === "Todos" || m.group === filterGroup) &&
@@ -672,11 +693,12 @@ export default function Dashboard() {
         (filterCountry === "Todos" || m.country === filterCountry) &&
         (filterDate === "" || m.date === filterDate) &&
         (filterVenue === "Todas" || m.venueName === filterVenue) &&
-        (filterTeam === "Todas" || m.teamA === filterTeam || m.teamB === filterTeam)
+        (filterTeam === "Todas" || m.teamA === filterTeam || m.teamB === filterTeam) &&
+        (filterJornada === "Todas" || String(jornada) === filterJornada)
       );
     });
-  }, [search, filterGroup, filterStatus, filterCountry, filterDate, filterVenue, filterTeam]);
-
+  }, [search, filterGroup, filterStatus, filterCountry, filterDate, filterVenue, filterTeam, filterJornada, jornadaMap]);
+ 
   const totalMatches = (matches as Match[]).length;
   const finalizados = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal) === "Finalizado").length;
   const proximos = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal) === "Próximo").length;
@@ -726,7 +748,7 @@ export default function Dashboard() {
             <span style={{ fontWeight: 800, color: C.white, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ color: C.blueBright }}>▍</span> Filtrar partidos
             </span>
-            <button onClick={() => { setSearch(""); setFilterGroup("Todos"); setFilterStatus("Todos"); setFilterCountry("Todos"); setFilterDate(""); setFilterVenue("Todas"); setFilterTeam("Todas"); }}
+            <button onClick={() => { setSearch(""); setFilterGroup("Todos"); setFilterStatus("Todos"); setFilterCountry("Todos"); setFilterDate(""); setFilterVenue("Todas"); setFilterTeam("Todas"); setFilterJornada("Todas"); }}
               style={{ background: "none", border: `1px solid ${C.border}`, color: C.gray, cursor: "pointer", fontSize: 12, padding: "4px 12px", borderRadius: 6, transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.color = C.white; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.gray; }}>
@@ -760,6 +782,12 @@ export default function Dashboard() {
             <select value={filterVenue} onChange={e => setFilterVenue(e.target.value)} style={sel}>
               {venues.map(v => <option key={v} value={v}>{v}</option>)}
             </select>
+            <select value={filterJornada} onChange={e => setFilterJornada(e.target.value)} style={sel}>
+              <option value="Todas">Jornada: Todas</option>
+              <option value="1">Jornada 1</option>
+              <option value="2">Jornada 2</option>
+              <option value="3">Jornada 3</option>
+            </select>
           </div>
         </div>
 
@@ -788,7 +816,7 @@ export default function Dashboard() {
                   <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,13,26,0.1), rgba(5,13,26,0.92))` }} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: status === "En curso" ? C.greenBright : status === "Próximo" ? C.blueBright : C.red }} />
                   <div style={{ position: "absolute", top: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ color: C.white, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.5 }}>Grupo {m.group}</span>
+                    <span style={{ color: C.white, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.5 }}>Grupo {m.group} · J{jornadaMap[m.matchId]}</span>
                     <span style={{ fontSize: 9, fontWeight: 900, padding: "3px 9px", borderRadius: 5, color: "white", textTransform: "uppercase", background: status === "Próximo" ? C.blue : status === "En curso" ? C.green : C.red }}>{status}</span>
                   </div>
                   <div style={{ position: "absolute", bottom: 7, left: 10 }}>
