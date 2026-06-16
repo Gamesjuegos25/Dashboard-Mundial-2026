@@ -764,6 +764,188 @@ export const squads: Record<string, Player[]> = {
     { name: "Dario Sagna", pos: "DEL", club: "Stade Reims", age: 24 },
     { name: "Franck Genêt", pos: "DEL", club: "Caen", age: 26 },
   ],
+
+  // ========== PAÍSES FALTANTES PARA COMPLETAR LOS 72 PARTIDOS ======================================================================================
+
+  QAT: [
+    { name: "Akram Afif", pos: "DEL", club: "Al Sadd", age: 29 },
+    { name: "Almoez Ali", pos: "DEL", club: "Al Duhail", age: 29 },
+    { name: "Boualem Khoukhi", pos: "DEF", club: "Al Sadd", age: 35 },
+    { name: "Hassan Al-Haydos", pos: "MED", club: "Al Sadd", age: 34 },
+    { name: "Meshaal Barsham", pos: "POR", club: "Al Sadd", age: 26 },
+    { name: "Pedro Miguel", pos: "DEF", club: "Al Sadd", age: 34 },
+    { name: "Karim Boudiaf", pos: "MED", club: "Al Duhail", age: 34 },
+    { name: "Tarek Salman", pos: "DEF", club: "Al Sadd", age: 26 },
+    { name: "Mohammed Muntari", pos: "DEL", club: "Al Duhail", age: 31 },
+    { name: "Abdulaziz Hatem", pos: "MED", club: "Al Rayyan", age: 34 },
+    { name: "Homam Ahmed", pos: "DEF", club: "Al Gharafa", age: 24 },
+  ],
+  SUI: [
+    { name: "Yann Sommer", pos: "POR", club: "Inter Milán", age: 35 },
+    { name: "Gregor Kobel", pos: "POR", club: "Borussia Dortmund", age: 26 },
+    { name: "Manuel Akanji", pos: "DEF", club: "Manchester City", age: 29 },
+    { name: "Nico Elvedi", pos: "DEF", club: "Borussia M'gladbach", age: 27 },
+    { name: "Ricardo Rodríguez", pos: "DEF", club: "Torino", age: 32 },
+    { name: "Granit Xhaka", pos: "MED", club: "Bayer Leverkusen", age: 31 },
+    { name: "Remo Freuler", pos: "MED", club: "Bologna", age: 32 },
+    { name: "Denis Zakaria", pos: "MED", club: "Monaco", age: 27 },
+    { name: "Xherdan Shaqiri", pos: "DEL", club: "Chicago Fire", age: 32 },
+    { name: "Breel Embolo", pos: "DEL", club: "Monaco", age: 27 },
+    { name: "Noah Okafor", pos: "DEL", club: "AC Milan", age: 24 },
+    { name: "Ruben Vargas", pos: "DEL", club: "Augsburg", age: 26 },
+    { name: "Dan Ndoye", pos: "DEL", club: "Bologna", age: 23 },
+  ],
+  CUW: [
+    { name: "Eloy Room", pos: "POR", club: "Vitesse", age: 35 },
+    { name: "Cuco Martina", pos: "DEF", club: "Go Ahead Eagles", age: 34 },
+    { name: "Jurien Gaari", pos: "DEF", club: "RKC Waalwijk", age: 31 },
+    { name: "Juninho Bacuna", pos: "MED", club: "Birmingham City", age: 27 },
+    { name: "Leandro Bacuna", pos: "MED", club: "Watford", age: 33 },
+    { name: "Rangelo Janga", pos: "DEL", club: "Aris Limassol", age: 32 },
+    { name: "Jarchinio Antonia", pos: "DEL", club: "Beitar Jerusalem", age: 33 },
+    { name: "Brandley Kuwas", pos: "DEL", club: "Al Khaleej", age: 31 },
+  ],
+  CIV: [
+    { name: "Yahia Fofana", pos: "POR", club: "Angers", age: 23 },
+    { name: "Evan Ndicka", pos: "DEF", club: "Roma", age: 24 },
+    { name: "Odilon Kossounou", pos: "DEF", club: "Bayer Leverkusen", age: 23 },
+    { name: "Wilfried Singo", pos: "DEF", club: "Monaco", age: 23 },
+    { name: "Franck Kessié", pos: "MED", club: "Barcelona", age: 27 },
+    { name: "Seko Fofana", pos: "MED", club: "Al Nassr", age: 29 },
+    { name: "Ibrahim Sangaré", pos: "MED", club: "Nottingham Forest", age: 26 },
+    { name: "Sébastien Haller", pos: "DEL", club: "Borussia Dortmund", age: 30 },
+    { name: "Nicolas Pépé", pos: "DEL", club: "Trabzonspor", age: 29 },
+    { name: "Jonathan Bamba", pos: "DEL", club: "Celta Vigo", age: 28 },
+    { name: "Christian Kouamé", pos: "DEL", club: "Fiorentina", age: 26 },
+  ],
+  EGY: [
+    { name: "Mohamed El Shenawy", pos: "POR", club: "Al Ahly", age: 35 },
+    { name: "Mohamed Abdelmonem", pos: "DEF", club: "Al Ahly", age: 25 },
+    { name: "Ahmed Hegazi", pos: "DEF", club: "Al Ittihad", age: 33 },
+    { name: "Mohamed Elneny", pos: "MED", club: "Arsenal", age: 32 },
+    { name: "Amr El Solia", pos: "MED", club: "Al Ahly", age: 33 },
+    { name: "Mohamed Salah", pos: "DEL", club: "Liverpool", age: 32 },
+    { name: "Mostafa Mohamed", pos: "DEL", club: "Nantes", age: 26 },
+    { name: "Mahmoud Trezeguet", pos: "DEL", club: "Trabzonspor", age: 29 },
+    { name: "Omar Marmoush", pos: "DEL", club: "Eintracht Frankfurt", age: 25 },
+  ],
+  SWE: [
+    { name: "Robin Olsen", pos: "POR", club: "Aston Villa", age: 34 },
+    { name: "Victor Lindelöf", pos: "DEF", club: "Manchester United", age: 30 },
+    { name: "Ludwig Augustinsson", pos: "DEF", club: "Anderlecht", age: 30 },
+    { name: "Dejan Kulusevski", pos: "MED", club: "Tottenham", age: 24 },
+    { name: "Jens Cajuste", pos: "MED", club: "Napoli", age: 24 },
+    { name: "Alexander Isak", pos: "DEL", club: "Newcastle", age: 25 },
+    { name: "Emil Forsberg", pos: "DEL", club: "RB Leipzig", age: 32 },
+    { name: "Viktor Gyökeres", pos: "DEL", club: "Sporting CP", age: 26 },
+    { name: "Anthony Elanga", pos: "DEL", club: "Nottingham Forest", age: 22 },
+  ],
+  TUN: [
+    { name: "Aymen Dahmen", pos: "POR", club: "CS Sfaxien", age: 27 },
+    { name: "Montassar Talbi", pos: "DEF", club: "Lorient", age: 26 },
+    { name: "Ali Maâloul", pos: "DEF", club: "Al Ahly", age: 34 },
+    { name: "Ellyes Skhiri", pos: "MED", club: "Eintracht Frankfurt", age: 29 },
+    { name: "Aïssa Laïdouni", pos: "MED", club: "Union Berlin", age: 27 },
+    { name: "Youssef Msakni", pos: "DEL", club: "Al Arabi", age: 33 },
+    { name: "Wahbi Khazri", pos: "DEL", club: "Montpellier", age: 33 },
+    { name: "Seifeddine Jaziri", pos: "DEL", club: "Zamalek", age: 31 },
+  ],
+  CPV: [
+    { name: "Vozinha", pos: "POR", club: "AS FAR", age: 38 },
+    { name: "Stopira", pos: "DEF", club: "Feirense", age: 36 },
+    { name: "Roberto Lopes", pos: "DEF", club: "Shamrock Rovers", age: 32 },
+    { name: "Jovane Cabral", pos: "MED", club: "Salernitana", age: 26 },
+    { name: "Kenny Rocha Santos", pos: "MED", club: "Zulte Waregem", age: 24 },
+    { name: "Ryan Mendes", pos: "DEL", club: "Fatih Karagümrük", age: 34 },
+    { name: "Garry Rodrigues", pos: "DEL", club: "Al Ahli", age: 33 },
+    { name: "Dany", pos: "DEL", club: "Beroe", age: 28 },
+  ],
+  IRQ: [
+    { name: "Jalal Hassan", pos: "POR", club: "Al Shorta", age: 33 },
+    { name: "Ali Faez", pos: "DEF", club: "Al Khaleej", age: 29 },
+    { name: "Rechin", pos: "DEF", club: "Al Shorta", age: 31 },
+    { name: "Amir Al-Ammari", pos: "MED", club: "Halmstad", age: 27 },
+    { name: "Osama Rashid", pos: "MED", club: "Vizela", age: 32 },
+    { name: "Ibrahim Bayesh", pos: "MED", club: "Al Shorta", age: 24 },
+    { name: "Aymen Hussein", pos: "DEL", club: "Al Wakrah", age: 28 },
+    { name: "Mohanad Ali", pos: "DEL", club: "Al Shorta", age: 24 },
+    { name: "Ali Jasim", pos: "DEL", club: "Al Quwa Al Jawiya", age: 20 },
+  ],
+  NOR: [
+    { name: "Ørjan Nyland", pos: "POR", club: "Sevilla", age: 33 },
+    { name: "Kristoffer Ajer", pos: "DEF", club: "Brentford", age: 26 },
+    { name: "Leo Østigård", pos: "DEF", club: "Napoli", age: 24 },
+    { name: "Martin Ødegaard", pos: "MED", club: "Arsenal", age: 25 },
+    { name: "Sander Berge", pos: "MED", club: "Burnley", age: 26 },
+    { name: "Erling Haaland", pos: "DEL", club: "Manchester City", age: 24 },
+    { name: "Alexander Sørloth", pos: "DEL", club: "Villarreal", age: 28 },
+    { name: "Jørgen Strand Larsen", pos: "DEL", club: "Celta Vigo", age: 24 },
+  ],
+  ALG: [
+    { name: "Alexandre Oukidja", pos: "POR", club: "Metz", age: 36 },
+    { name: "Ramy Bensebaini", pos: "DEF", club: "Borussia Dortmund", age: 29 },
+    { name: "Aïssa Mandi", pos: "DEF", club: "Lille", age: 32 },
+    { name: "Nabil Bentaleb", pos: "MED", club: "Lille", age: 29 },
+    { name: "Ismaël Bennacer", pos: "MED", club: "AC Milan", age: 26 },
+    { name: "Riyad Mahrez", pos: "DEL", club: "Al Ahli", age: 33 },
+    { name: "Said Benrahma", pos: "DEL", club: "Lyon", age: 28 },
+    { name: "Baghdad Bounedjah", pos: "DEL", club: "Al Sadd", age: 32 },
+    { name: "Amine Gouiri", pos: "DEL", club: "Rennes", age: 24 },
+  ],
+  AUT: [
+    { name: "Alexander Schlager", pos: "POR", club: "Salzburg", age: 28 },
+    { name: "David Alaba", pos: "DEF", club: "Real Madrid", age: 32 },
+    { name: "Stefan Lainer", pos: "DEF", club: "Gladbach", age: 31 },
+    { name: "Philipp Lienhart", pos: "DEF", club: "Freiburg", age: 28 },
+    { name: "Marcel Sabitzer", pos: "MED", club: "Borussia Dortmund", age: 30 },
+    { name: "Konrad Laimer", pos: "MED", club: "Bayern Múnich", age: 27 },
+    { name: "Christoph Baumgartner", pos: "DEL", club: "RB Leipzig", age: 25 },
+    { name: "Marko Arnautović", pos: "DEL", club: "Inter Milán", age: 35 },
+    { name: "Michael Gregoritsch", pos: "DEL", club: "Freiburg", age: 30 },
+  ],
+  JOR: [
+    { name: "Yazid Abu Layla", pos: "POR", club: "Al Jazeera", age: 30 },
+    { name: "Ehsan Haddad", pos: "DEF", club: "Al Faisaly", age: 29 },
+    { name: "Yazan Al-Arab", pos: "DEF", club: "Al Wehdat", age: 28 },
+    { name: "Noor Al-Rawabdeh", pos: "MED", club: "Al Jazeera", age: 27 },
+    { name: "Moussa Al-Tamari", pos: "DEL", club: "Montpellier", age: 27 },
+    { name: "Yazan Al-Naimat", pos: "DEL", club: "Al Ahly", age: 25 },
+    { name: "Hamza Al-Dardour", pos: "DEL", club: "Al Wehdat", age: 33 },
+  ],
+  UZB: [
+    { name: "Utkir Yusupov", pos: "POR", club: "Navbahor", age: 33 },
+    { name: "Rustam Ashurmatov", pos: "DEF", club: "Rubin Kazan", age: 28 },
+    { name: "Farrukh Sayfiev", pos: "DEF", club: "Pakhtakor", age: 33 },
+    { name: "Otabek Shukurov", pos: "MED", club: "Al Wasl", age: 28 },
+    { name: "Jaloliddin Masharipov", pos: "MED", club: "Al Hilal", age: 30 },
+    { name: "Eldor Shomurodov", pos: "DEL", club: "Roma", age: 29 },
+    { name: "Igor Sergeev", pos: "DEL", club: "BG Pathum United", age: 31 },
+    { name: "Khusayin Norchaev", pos: "DEL", club: "Neftchi", age: 24 },
+  ],
+  GHA: [
+    { name: "Lawrence Ati-Zigi", pos: "POR", club: "St. Gallen", age: 27 },
+    { name: "Tariq Lamptey", pos: "DEF", club: "Brighton", age: 23 },
+    { name: "Mohammed Salisu", pos: "DEF", club: "Monaco", age: 25 },
+    { name: "Alexander Djiku", pos: "DEF", club: "Fenerbahçe", age: 29 },
+    { name: "Thomas Partey", pos: "MED", club: "Arsenal", age: 31 },
+    { name: "Mohammed Kudus", pos: "MED", club: "West Ham", age: 24 },
+    { name: "Jordan Ayew", pos: "DEL", club: "Crystal Palace", age: 32 },
+    { name: "Inaki Williams", pos: "DEL", club: "Athletic Club", age: 30 },
+    { name: "Antoine Semenyo", pos: "DEL", club: "Bournemouth", age: 24 },
+  ],
+  PAN: [
+    { name: "Luis Mejía", pos: "POR", club: "Pachuca", age: 33 },
+    { name: "Fidel Escobar", pos: "DEF", club: "Sporting Cristal", age: 29 },
+    { name: "Andrés Andrade", pos: "DEF", club: "LDU Quito", age: 25 },
+    { name: "Eric Davis", pos: "DEF", club: "FC Dallas", age: 33 },
+    { name: "Aníbal Godoy", pos: "MED", club: "Nashville SC", age: 34 },
+    { name: "Adalberto Carrasquilla", pos: "MED", club: "Houston Dynamo", age: 25 },
+    { name: "Yoel Bárcenas", pos: "MED", club: "Mazatlán", age: 30 },
+    { name: "Ismael Díaz", pos: "DEL", club: "Universidad Católica", age: 27 },
+    { name: "José Fajardo", pos: "DEL", club: "Cibao", age: 31 },
+  ],
+
+// ========== FIN PAÍSES FALTANTES ==========
 };
 
 // Mapa de códigos FIFA (3 letras) a códigos ISO2 para banderas
@@ -775,6 +957,26 @@ export const teamToISO2: Record<string, string> = {
   IRN: "ir", KSA: "sa", AUS: "au", NZL: "nz", CMR: "cm", NGA: "ng",
   COD: "cd", ZAF: "za", ALB: "al", CZE: "cz", SCO: "gb-sct", BIH: "ba",
   HAI: "ht",
+
+
+
+  // =FALTANTES=
+  QAT: "qa",      // Catar
+  SUI: "ch",      // Suiza
+  CUW: "cw",      // Curazao
+  CIV: "ci",      // Costa de Marfil
+  EGY: "eg",      // Egipto
+  SWE: "se",      // Suecia
+  TUN: "tn",      // Túnez
+  CPV: "cv",      // Cabo Verde
+  IRQ: "iq",      // Irak
+  NOR: "no",      // Noruega
+  ALG: "dz",      // Argelia
+  AUT: "at",      // Austria
+  JOR: "jo",      // Jordania
+  UZB: "uz",      // Uzbekistán
+  GHA: "gh",      // Ghana
+  PAN: "pa",      // Panamá
 };
 
 export function getFlagUrl(teamCode: string): string {

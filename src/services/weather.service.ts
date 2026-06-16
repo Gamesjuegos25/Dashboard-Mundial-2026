@@ -49,7 +49,7 @@ export async function fetchWeather(
 
 export function getWeatherRecommendation(weather: WeatherData): string {
   if (weather.rainProbability >= 70 && weather.windSpeed > 40) {
-    return "Condiciones adversas";
+    return "Condiciones adveZAFs";
   }
   if (weather.rainProbability >= 40) {
     return "Posible lluvia durante el partido";

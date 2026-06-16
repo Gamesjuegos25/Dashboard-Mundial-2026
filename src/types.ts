@@ -10,4 +10,4 @@ export interface CountryData {
   timezones: string[];
 }
 
-export default CountryData;
+
