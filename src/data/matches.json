@@ -87,4 +87,6 @@
   {"matchId":70,"phase":"group","group":"K","date":"2026-06-28","timeLocal":"15:00","timezone":"America/New_York","venueName":"Estadio de Atlanta","city":"Atlanta","country":"US","latitude":33.7554,"longitude":-84.4010,"teamA":"COD","teamB":"UZB","teamAName":"Congo DR","teamBName":"Uzbekistán"},
   {"matchId":71,"phase":"group","group":"J","date":"2026-06-28","timeLocal":"18:00","timezone":"America/Chicago","venueName":"Estadio de Kansas City","city":"Kansas City","country":"US","latitude":39.0489,"longitude":-94.4839,"teamA":"ALG","teamB":"AUT","teamAName":"Argelia","teamBName":"Austria"},
   {"matchId":72,"phase":"group","group":"J","date":"2026-06-28","timeLocal":"18:00","timezone":"America/Chicago","venueName":"Estadio de Dallas","city":"Arlington","country":"US","latitude":32.7480,"longitude":-97.0930,"teamA":"JOR","teamB":"ARG","teamAName":"Jordania","teamBName":"Argentina"}
+
+
 ]

@@ -1,28 +1,12 @@
 import type { CountryData } from '../types';
 import countriesData from '../data/countries.json';
 
-/**
- * ESTRATEGIA DE DATOS DE PAÍSES:
- *
- * 1. World Bank API (api.worldbank.org) — llamada en vivo, sin API key, CORS habilitado.
- *    Provee: nombre oficial, capital, región, población (dato más reciente).
- *    Endpoint: https://api.worldbank.org/v2/country/{ISO3}?format=json
- *    Endpoint: https://api.worldbank.org/v2/country/{ISO3}/indicator/SP.POP.TOTL?format=json&per_page=1&mrv=1
- *
- * 2. Dataset local (src/data/countries.json) — fallback y complemento.
- *    Provee: bandera (flagcdn.com), idiomas, monedas, zonas horarias.
- *    Justificación: REST Countries v3.1 fue deprecada en 2025 y v5 requiere API key,
- *    violando el requisito de acceso libre. World Bank no provee estos campos.
- *    El dataset local cubre las 37 selecciones del torneo.
- */
-
 const LOCAL: Record<string, CountryData> = countriesData as Record<string, CountryData>;
 
-// Mapa ISO-3 FIFA → ISO-3 World Bank (son iguales en casi todos, excepto algunos)
 const ISO3_WB: Record<string, string> = {
-  ENG: 'GBR', // Inglaterra → Reino Unido en World Bank
-  SCO: 'GBR', // Escocia → Reino Unido en World Bank
-  KSA: 'SAU', // Arabia Saudita
+  ENG: 'GBR',
+  SCO: 'GBR',
+  KSA: 'SAU',
   KOR: 'KOR',
   CZE: 'CZE',
   HAI: 'HTI',
@@ -35,6 +19,7 @@ function wbIso(iso3: string): string {
   return ISO3_WB[iso3] ?? iso3;
 }
 
+// --- World Bank ---
 async function fetchWBCountry(iso3: string): Promise<{ name: string; capital: string; region: string } | null> {
   try {
     const wb = wbIso(iso3);
@@ -68,29 +53,41 @@ async function fetchWBPopulation(iso3: string): Promise<number | null> {
   }
 }
 
-export async function fetchCountry(iso3: string): Promise<CountryData> {
-  const local = LOCAL[iso3];
+// --- REST Countries ---
+async function fetchRestCountry(iso3: string): Promise<any | null> {
+  try {
+    const res = await fetch(`https://restcountries.com/v3.1/alpha/${iso3}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.[0] ?? null;
+  } catch {
+    return null;
+  }
+}
 
-  // Llamadas paralelas a World Bank API
-  const [wbInfo, wbPop] = await Promise.allSettled([
+// --- Función principal ---
+export async function fetchCountry(iso3: string): Promise<CountryData> {
+  const [restResult, wbInfoResult, wbPopResult] = await Promise.allSettled([
+    fetchRestCountry(iso3),
     fetchWBCountry(iso3),
     fetchWBPopulation(iso3),
   ]);
 
-  const info = wbInfo.status === 'fulfilled' ? wbInfo.value : null;
-  const pop  = wbPop.status  === 'fulfilled' ? wbPop.value  : null;
+  const rest = restResult.status === 'fulfilled' ? restResult.value : null;
+  const info = wbInfoResult.status === 'fulfilled' ? wbInfoResult.value : null;
+  const pop  = wbPopResult.status  === 'fulfilled' ? wbPopResult.value  : null;
+  const local = LOCAL[iso3];
 
-  // Combinar: World Bank (en vivo) + local (complemento)
   return {
-    name:         info?.name         ?? local?.name         ?? iso3,
-    officialName: local?.officialName ?? info?.name         ?? iso3,
-    flag:         local?.flag         ?? '',
-    capital:      info?.capital       ?? local?.capital      ?? 'N/A',
-    region:       info?.region        ?? local?.region       ?? 'N/A',
-    languages:    local?.languages    ?? [],
-    currencies:   local?.currencies   ?? [],
-    population:   pop                 ?? local?.population   ?? 0,
-    timezones:    local?.timezones    ?? [],
+    name:         rest?.name?.common ?? info?.name ?? local?.name ?? iso3,
+    officialName: rest?.name?.official ?? local?.officialName ?? info?.name ?? iso3,
+    flag:         rest?.flags?.svg ?? local?.flag ?? '',
+    capital:      rest?.capital?.[0] ?? info?.capital ?? local?.capital ?? 'N/A',
+    region:       rest?.region ?? info?.region ?? local?.region ?? 'N/A',
+    languages:    rest?.languages ? Object.values(rest.languages) : local?.languages ?? [],
+    currencies:   rest?.currencies ? Object.keys(rest.currencies) : local?.currencies ?? [],
+    population:   rest?.population ?? pop ?? local?.population ?? 0,
+    timezones:    rest?.timezones ?? local?.timezones ?? [],
   };
 }
 

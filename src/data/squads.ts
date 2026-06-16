@@ -662,7 +662,7 @@ export const squads: Record<string, Player[]> = {
     { name: "Paul-José Mpoku", pos: "DEL", club: "Standard Liège", age: 31 },
     { name: "Jonathan Bolingi", pos: "DEL", club: "Lommel United", age: 30 },
   ],
-  RSA: [
+  ZAF: [
     { name: "Ronwen Williams", pos: "POR", club: "SuperSport United", age: 32 },
     { name: "Veli Mothwa", pos: "POR", club: "AmaZulu", age: 31 },
     { name: "Terrence Mashego", pos: "DEF", club: "Cape Town City", age: 28 },
@@ -955,7 +955,7 @@ export const teamToISO2: Record<string, string> = {
   BEL: "be", JPN: "jp", MAR: "ma", SEN: "sn", URU: "uy", COL: "co",
   ECU: "ec", PAR: "py", KOR: "kr", CRO: "hr", SRB: "rs", TUR: "tr",
   IRN: "ir", KSA: "sa", AUS: "au", NZL: "nz", CMR: "cm", NGA: "ng",
-  COD: "cd", RSA: "za", ALB: "al", CZE: "cz", SCO: "gb-sct", BIH: "ba",
+  COD: "cd", ZAF: "za", ALB: "al", CZE: "cz", SCO: "gb-sct", BIH: "ba",
   HAI: "ht",
 
 
