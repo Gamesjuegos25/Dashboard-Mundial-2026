@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import matches from "../data/matches.json";
 import { squads, getFlagUrl, hostCountryName } from "../data/squads";
+import { useCountry } from "../hooks/useCountry";
 
 interface Match {
   matchId: number;
@@ -434,91 +435,99 @@ function StadiumTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB PAÍS (ESTÁTICO CON COMPARACIÓN) ──────────────────────────
-function CountryTab({ match }: { match: Match }) {
-  const codigoPaisA = TEAM_TO_COUNTRY[match.teamA];
-  const codigoPaisB = TEAM_TO_COUNTRY[match.teamB];
-  const datosA = codigoPaisA ? COUNTRY_INFO[codigoPaisA] : undefined;
-  const datosB = codigoPaisB ? COUNTRY_INFO[codigoPaisB] : undefined;
-  const paisSede = COUNTRY_INFO[match.country];
-  const nombreSede = hostCountryName[match.country] ?? getCountryName(match.country);
+// ── TAB PAÍS (REST Countries API) ────────────────────────────────
+function FichaCard({ iso3 }: { iso3: string }) {
+  const { data, isLoading, isError } = useCountry(iso3);
 
-  const filas: Array<[string, string, string]> = [
-    ["Población", datosA?.poblacion ?? "N/A", datosB?.poblacion ?? "N/A"],
-    ["Capital", datosA?.capital ?? "N/A", datosB?.capital ?? "N/A"],
-    ["Región", datosA?.region ?? "N/A", datosB?.region ?? "N/A"],
-    ["Idioma", datosA?.idioma ?? "N/A", datosB?.idioma ?? "N/A"],
-    ["Moneda", datosA?.moneda ?? "N/A", datosB?.moneda ?? "N/A"],
-    ["Zona horaria", datosA?.zonaHoraria ?? "N/A", datosB?.zonaHoraria ?? "N/A"],
-  ];
+  if (isLoading) return (
+    <div style={{ background: C.surface, borderRadius: 12, padding: 14, border: `1px solid ${C.border}` }}>
+      <Skeleton />
+    </div>
+  );
+  if (isError || !data) return (
+    <div style={{ background: C.surface, borderRadius: 12, padding: 14, border: `1px solid ${C.border}` }}>
+      <p style={{ color: C.red, fontSize: 12, margin: 0 }}>Error al cargar datos del país.</p>
+    </div>
+  );
+  return (
+    <div style={{ background: C.surface, borderRadius: 12, padding: "14px", border: `1px solid ${C.border}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <img
+          src={data.flag}
+          alt={data.name}
+          style={{ width: 32, height: 21, objectFit: "cover", borderRadius: 4, border: `1px solid ${C.border}` }}
+        />
+        <div>
+          <p style={{ color: C.white, fontWeight: 800, fontSize: 13, margin: 0 }}>{data.name}</p>
+          <p style={{ color: C.gray, fontSize: 11, margin: 0 }}>{data.officialName}</p>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {([
+          ["Capital",      data.capital],
+          ["Región",       data.region],
+          ["Idiomas",      data.languages.join(", ")],
+          ["Moneda",       data.currencies.join(", ")],
+          ["Población",    data.population.toLocaleString()],
+          ["Zona horaria", data.timezones[0] ?? "N/A"],
+        ] as [string, string][]).map(([label, value]) => (
+          <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+            <span style={{ color: C.gray }}>{label}</span>
+            <span style={{ color: C.grayLight, fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CountryTab({ match }: { match: Match }) {
+  const { data: datosA, isLoading: loadA } = useCountry(match.teamA);
+  const { data: datosB, isLoading: loadB } = useCountry(match.teamB);
+
+  const filas: Array<[string, string, string]> = (datosA && datosB) ? [
+    ["Población",    datosA.population.toLocaleString(),  datosB.population.toLocaleString()],
+    ["Capital",      datosA.capital,                      datosB.capital],
+    ["Región",       datosA.region,                       datosB.region],
+    ["Idiomas",      datosA.languages.join(", "),         datosB.languages.join(", ")],
+    ["Moneda",       datosA.currencies.join(", "),        datosB.currencies.join(", ")],
+    ["Zona horaria", datosA.timezones[0] ?? "N/A",        datosB.timezones[0] ?? "N/A"],
+  ] : [];
 
   return (
     <div style={{ padding: "20px 20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
 
-      {/* FICHAS */}
+      {/* FICHAS — datos en vivo de REST Countries */}
       <p style={{ color: C.greenBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: 0 }}>── Fichas de país</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {[{ code: match.teamA, name: match.teamAName, info: datosA }, { code: match.teamB, name: match.teamBName, info: datosB }].map(({ code, name, info }) => (
-          <div key={code} style={{ background: C.surface, borderRadius: 12, padding: "14px", border: `1px solid ${C.border}` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <img src={getFlagUrl(code)} alt={name} style={{ width: 32, height: 21, objectFit: "cover", borderRadius: 4, border: `1px solid ${C.border}` }} />
-              <div>
-                <p style={{ color: C.white, fontWeight: 800, fontSize: 13, margin: 0 }}>{name}</p>
-                {info && <p style={{ color: C.gray, fontSize: 11, margin: 0 }}>{info.nombre}</p>}
-              </div>
-            </div>
-            {info ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {[["Capital", info.capital], ["Región", info.region], ["Idioma", info.idioma], ["Moneda", info.moneda], ["Población", info.poblacion], ["Zona horaria", info.zonaHoraria]].map(([label, value]) => (
-                  <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                    <span style={{ color: C.gray }}>{label}</span>
-                    <span style={{ color: C.grayLight, fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{value}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: C.gray, fontSize: 12, margin: 0, fontStyle: "italic" }}>Información no disponible</p>
-            )}
-          </div>
-        ))}
+        <FichaCard iso3={match.teamA} />
+        <FichaCard iso3={match.teamB} />
       </div>
 
       {/* COMPARACIÓN */}
       <p style={{ color: C.blueBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: 0 }}>── Comparación de selecciones</p>
       <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14 }}>
-        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-              <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 800, color: C.white }}>{match.teamAName}</th>
-              <th style={{ textAlign: "center", padding: "4px 0", fontWeight: 700, color: C.grayDark, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Indicador</th>
-              <th style={{ textAlign: "right", padding: "4px 0", fontWeight: 800, color: C.white }}>{match.teamBName}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filas.map(([label, valA, valB]) => (
-              <tr key={label} style={{ borderBottom: `1px solid ${C.border}` }}>
-                <td style={{ padding: "6px 0", color: C.grayLight, textAlign: "left" }}>{valA}</td>
-                <td style={{ padding: "6px 0", color: C.gray, textAlign: "center", fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>{label}</td>
-                <td style={{ padding: "6px 0", color: C.grayLight, textAlign: "right" }}>{valB}</td>
+        {(loadA || loadB) ? <Skeleton /> : (
+          <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 800, color: C.white }}>{datosA?.name ?? match.teamAName}</th>
+                <th style={{ textAlign: "center", padding: "4px 0", fontWeight: 700, color: C.grayDark, fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>Indicador</th>
+                <th style={{ textAlign: "right", padding: "4px 0", fontWeight: 800, color: C.white }}>{datosB?.name ?? match.teamBName}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filas.map(([label, valA, valB]) => (
+                <tr key={label} style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <td style={{ padding: "6px 0", color: C.grayLight, textAlign: "left" }}>{valA}</td>
+                  <td style={{ padding: "6px 0", color: C.gray, textAlign: "center", fontSize: 10, textTransform: "uppercase", letterSpacing: 1 }}>{label}</td>
+                  <td style={{ padding: "6px 0", color: C.grayLight, textAlign: "right" }}>{valB}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-
-      {/* PAÍS SEDE */}
-      {paisSede && (
-        <>
-          <p style={{ color: C.greenBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: 0 }}>── País anfitrión del partido</p>
-          <div style={{ background: C.surface, borderRadius: 12, padding: "16px", border: `1px solid ${C.border}` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <img src={`https://flagcdn.com/w40/${paisSede.flag}.png`} alt={paisSede.nombre} style={{ width: 36, height: 24, objectFit: "cover", borderRadius: 4, border: `1px solid ${C.border}` }} />
-              <p style={{ color: C.white, fontWeight: 800, fontSize: 15, margin: 0 }}>{nombreSede}</p>
-            </div>
-            <p style={{ color: C.grayLight, fontSize: 13, lineHeight: 1.8, margin: 0 }}>{paisSede.descripcion}</p>
-          </div>
-        </>
-      )}
     </div>
   );
 }
