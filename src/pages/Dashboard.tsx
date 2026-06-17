@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import matches from "../data/matches.json";
 import { squads, getFlagUrl, hostCountryName } from "../data/squads";
 import { useCountry } from "../hooks/useCountry";
+import { toGuatemalaTime } from "../utils/time";
 
 interface Match {
   matchId: number;
@@ -21,10 +22,30 @@ interface Match {
   teamBName: string;
 }
 
-function getMatchStatus(date: string, timeLocal: string): string {
+function getMatchStatus(date: string, timeLocal: string, timezone: string): string {
   const now = new Date();
-  const matchDate = new Date(`${date}T${timeLocal}:00`);
-  const diffMin = (now.getTime() - matchDate.getTime()) / 60000;
+  const dateTimeStr = `${date}T${timeLocal}:00`;
+  const dt = new Date(dateTimeStr + 'Z');
+
+  // Calculamos el offset real de la sede respecto a UTC, igual que en toGuatemalaTime,
+  // para no interpretar timeLocal usando la zona horaria del navegador del usuario.
+  const sedeFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+  const utcFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+  const sedeDate = new Date(sedeFormatter.format(dt));
+  const utcDate = new Date(utcFormatter.format(dt));
+  const offsetMs = utcDate.getTime() - sedeDate.getTime();
+
+  const matchUtcMs = new Date(dateTimeStr + 'Z').getTime() + offsetMs;
+  const diffMin = (now.getTime() - matchUtcMs) / 60000;
+
   if (diffMin < 0) return "Próximo";
   if (diffMin <= 105) return "En curso";
   return "Finalizado";
@@ -422,7 +443,11 @@ function StadiumTab({ match }: { match: Match }) {
         </div>
       )}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        {[{ icon: "📅", text: `${match.date} · ${match.timeLocal}` }, { icon: "📍", text: match.city }]
+        {[
+          { icon: "📅", text: `${match.date} · ${match.timeLocal} (hora sede)` },
+          { icon: "🇬🇹", text: `${toGuatemalaTime(match.date, match.timeLocal, match.timezone)} hora Guatemala` },
+          { icon: "📍", text: match.city },
+        ]
           .map((item, i) => <span key={i} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px", color: C.grayLight, fontSize: 12 }}>{item.icon} {item.text}</span>)}
       </div>
       {estadio && (
@@ -663,7 +688,7 @@ function TarjetaJugador({ p }: { p: { name: string; club: string; age: number; p
 function ModalPartido({ match, onClose }: { match: Match; onClose: () => void }) {
   const [tab, setTab] = useState<"resumen" | "convocados" | "selecciones" | "estadio">("resumen");
   const venueImg = VENUE_IMAGES[match.venueName] ?? DEFAULT_STADIUM;
-  const estado = getMatchStatus(match.date, match.timeLocal);
+  const estado = getMatchStatus(match.date, match.timeLocal, match.timezone);
 
   const TABS = [
     { key: "resumen", label: "📊", titulo: "Resumen" },
@@ -741,7 +766,7 @@ export default function Dashboard() {
   }, []);
 
   const filtrados = useMemo(() => (matches as Match[]).filter(m => {
-    const estado = getMatchStatus(m.date, m.timeLocal);
+    const estado = getMatchStatus(m.date, m.timeLocal, m.timezone);
     const jornada = jornadaMap[m.matchId];
     return (
       (busqueda === "" || m.teamAName.toLowerCase().includes(busqueda.toLowerCase()) || m.teamBName.toLowerCase().includes(busqueda.toLowerCase()) || m.venueName.toLowerCase().includes(busqueda.toLowerCase())) &&
@@ -756,9 +781,9 @@ export default function Dashboard() {
   }), [busqueda, filtroGrupo, filtroEstado, filtroPais, filtroFecha, filtroSede, filtroEquipo, filtroJornada, jornadaMap]);
 
   const totalPartidos = (matches as Match[]).length;
-  const finalizados = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal) === "Finalizado").length;
-  const proximos = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal) === "Próximo").length;
-  const enCurso = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal) === "En curso").length;
+  const finalizados = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal, m.timezone) === "Finalizado").length;
+  const proximos = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal, m.timezone) === "Próximo").length;
+  const enCurso = (matches as Match[]).filter(m => getMatchStatus(m.date, m.timeLocal, m.timezone) === "En curso").length;
 
   const sel: React.CSSProperties = {
     background: C.surface, border: `1px solid ${C.border}`, color: C.grayLight,
@@ -853,7 +878,7 @@ export default function Dashboard() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
           {filtrados.map(m => {
-            const estado = getMatchStatus(m.date, m.timeLocal);
+            const estado = getMatchStatus(m.date, m.timeLocal, m.timezone);
             const imgSede = VENUE_IMAGES[m.venueName] ?? DEFAULT_STADIUM;
             return (
               <div key={m.matchId}
@@ -889,7 +914,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div style={{ background: C.bg, borderRadius: 8, padding: "8px 12px", marginBottom: 14, border: `1px solid ${C.border}` }}>
-                    <p style={{ color: C.gray, fontSize: 11, margin: "0 0 3px" }}>📅 {m.date} · {m.timeLocal}</p>
+                    <p style={{ color: C.gray, fontSize: 11, margin: "0 0 3px" }}>🇬🇹 {m.date} · {toGuatemalaTime(m.date, m.timeLocal, m.timezone)} (Guatemala)</p>
                     <p style={{ color: C.gray, fontSize: 11, margin: 0 }}>📍 {m.city}, {getCountryName(m.country)}</p>
                   </div>
                   <button onClick={() => setPartidoSeleccionado(m)}

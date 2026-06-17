@@ -28,8 +28,11 @@ export function toGuatemalaTime(date: string, timeLocal: string, timezone: strin
   const utcDate = new Date(utcFormatter.format(dt));
   const offsetMs = utcDate.getTime() - sedeDate.getTime();
 
-  // Hora real en UTC = hora local + offset
-  const utcMs = new Date(dateTimeStr).getTime() + offsetMs;
+  // Hora real en UTC = hora local + offset.
+  // IMPORTANTE: usamos dateTimeStr + 'Z' para forzar que se interprete como UTC,
+  // sin esto, new Date(dateTimeStr) usaría la zona horaria del navegador del usuario
+  // y el cálculo quedaría mal en cualquier dispositivo que NO esté en UTC (ej. Guatemala).
+  const utcMs = new Date(dateTimeStr + 'Z').getTime() + offsetMs;
 
   // Guatemala = UTC-6
   const guateMs = utcMs - (6 * 60 * 60 * 1000);
