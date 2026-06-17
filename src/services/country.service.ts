@@ -3,13 +3,23 @@ import countriesData from '../data/countries.json';
 
 const LOCAL: Record<string, CountryData> = countriesData as Record<string, CountryData>;
 
+// Códigos FIFA que no coinciden con el código ISO-3166-1 alpha-3 real.
+// REST Countries y World Bank solo reconocen el código ISO real.
 const ISO3_WB: Record<string, string> = {
-  ENG: 'GBR',
-  SCO: 'GBR',
-  KSA: 'SAU',
+  ENG: 'GBR', // Inglaterra -> Reino Unido (no existe como país separado en REST Countries)
+  SCO: 'GBR', // Escocia -> Reino Unido
+  KSA: 'SAU', // Arabia Saudita
+  HAI: 'HTI', // Haití
+  GER: 'DEU', // Alemania
+  NED: 'NLD', // Países Bajos
+  POR: 'PRT', // Portugal
+  CRO: 'HRV', // Croacia
+  URU: 'URY', // Uruguay
+  ALG: 'DZA', // Argelia
+  SUI: 'CHE', // Suiza
+  // Estos coinciden FIFA == ISO, se listan solo para que quede explícito:
   KOR: 'KOR',
   CZE: 'CZE',
-  HAI: 'HTI',
   COD: 'COD',
   ZAF: 'ZAF',
   BIH: 'BIH',
@@ -56,7 +66,8 @@ async function fetchWBPopulation(iso3: string): Promise<number | null> {
 // --- REST Countries ---
 async function fetchRestCountry(iso3: string): Promise<any | null> {
   try {
-    const res = await fetch(`https://restcountries.com/v3.1/alpha/${iso3}`);
+    const realIso = wbIso(iso3);
+    const res = await fetch(`https://restcountries.com/v3.1/alpha/${realIso}`);
     if (!res.ok) return null;
     const json = await res.json();
     return json?.[0] ?? null;
