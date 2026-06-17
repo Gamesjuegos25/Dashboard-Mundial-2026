@@ -2,25 +2,21 @@
 
 /**
  * Convierte una hora local de la sede a hora de Guatemala (UTC-6).
- * @param date  "2026-06-11"
+ * @param date "2026-06-11"
  * @param timeLocal "13:00"
- * @param timezone  "America/Mexico_City"
+ * @param timezone "America/Mexico_City"
  * @returns string con hora en formato "HH:MM"
  */
 export function toGuatemalaTime(date: string, timeLocal: string, timezone: string): string {
-  // Construimos la fecha en la zona horaria de la sede usando Intl
   const dateTimeStr = `${date}T${timeLocal}:00`;
-  
-  // Parseamos como si fuera UTC primero para obtener un Date
   const dt = new Date(dateTimeStr + 'Z');
-  
-  // Obtenemos el offset de la sede en minutos
+
   const sedeFormatter = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', hour12: false,
   });
-  
+
   const utcFormatter = new Intl.DateTimeFormat('en-US', {
     timeZone: 'UTC',
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -34,18 +30,21 @@ export function toGuatemalaTime(date: string, timeLocal: string, timezone: strin
 
   // Hora real en UTC = hora local + offset
   const utcMs = new Date(dateTimeStr).getTime() + offsetMs;
-  
+
   // Guatemala = UTC-6
   const guateMs = utcMs - (6 * 60 * 60 * 1000);
   const guate = new Date(guateMs);
-  
+
   const h = guate.getUTCHours().toString().padStart(2, '0');
   const m = guate.getUTCMinutes().toString().padStart(2, '0');
   return `${h}:${m}`;
 }
 
+/**
+ * Formatea una fecha ISO ("2026-06-11") a texto en español ("11 jun 2026").
+ */
 export function formatDateEs(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number);
-  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   return `${day} ${months[month - 1]} ${year}`;
 }
