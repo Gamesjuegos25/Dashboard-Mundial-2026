@@ -1,5 +1,6 @@
 import type { CountryData } from '../types';
 
+
 const FIFA_TO_ISO: Record<string, string> = {
   MEX: 'MEX', USA: 'USA', CAN: 'CAN', HAI: 'HTI', PAN: 'PAN', CUW: 'CUW',
   ARG: 'ARG', BRA: 'BRA', URU: 'URY', COL: 'COL', ECU: 'ECU', PAR: 'PRY',
@@ -11,6 +12,7 @@ const FIFA_TO_ISO: Record<string, string> = {
   MAR: 'MAR', SEN: 'SEN', NGA: 'NGA', COD: 'COD', ZAF: 'ZAF',
   ALG: 'DZA', EGY: 'EGY', GHA: 'GHA', CIV: 'CIV', TUN: 'TUN', CPV: 'CPV',
   NZL: 'NZL',
+
 };
 
 const API_KEY = import.meta.env.VITE_REST_COUNTRIES_KEY;
