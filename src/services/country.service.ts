@@ -1,94 +1,100 @@
 import type { CountryData } from '../types';
-import countriesData from '../data/countries.json';
 
-const LOCAL: Record<string, CountryData> = countriesData as Record<string, CountryData>;
-
-const ISO3_WB: Record<string, string> = {
-  ENG: 'GBR',
-  SCO: 'GBR',
-  KSA: 'SAU',
-  KOR: 'KOR',
-  CZE: 'CZE',
-  HAI: 'HTI',
-  COD: 'COD',
-  ZAF: 'ZAF',
-  BIH: 'BIH',
+const FIFA_TO_ISO: Record<string, string> = {
+  MEX: 'MEX', USA: 'USA', CAN: 'CAN', HAI: 'HTI', PAN: 'PAN', CUW: 'CUW',
+  ARG: 'ARG', BRA: 'BRA', URU: 'URY', COL: 'COL', ECU: 'ECU', PAR: 'PRY',
+  FRA: 'FRA', ESP: 'ESP', GER: 'DEU', ENG: 'GBR', POR: 'PRT', NED: 'NLD',
+  BEL: 'BEL', CRO: 'HRV', TUR: 'TUR', CZE: 'CZE', SCO: 'GBR', BIH: 'BIH',
+  SUI: 'CHE', SWE: 'SWE', NOR: 'NOR', AUT: 'AUT',
+  JPN: 'JPN', KOR: 'KOR', IRN: 'IRN', KSA: 'SAU', AUS: 'AUS', QAT: 'QAT',
+  UZB: 'UZB', IRQ: 'IRQ', JOR: 'JOR',
+  MAR: 'MAR', SEN: 'SEN', NGA: 'NGA', COD: 'COD', ZAF: 'ZAF',
+  ALG: 'DZA', EGY: 'EGY', GHA: 'GHA', CIV: 'CIV', TUN: 'TUN', CPV: 'CPV',
+  NZL: 'NZL',
 };
 
-function wbIso(iso3: string): string {
-  return ISO3_WB[iso3] ?? iso3;
+const API_KEY = import.meta.env.VITE_REST_COUNTRIES_KEY;
+const BASE_URL = 'https://api.restcountries.com/countries/v5';
+
+interface RestCountryLanguage {
+  name?: string;
+  english_name?: string;
+  iso639_1?: string;
 }
 
-// --- World Bank ---
-async function fetchWBCountry(iso3: string): Promise<{ name: string; capital: string; region: string } | null> {
+interface RestCountryCurrency {
+  code?: string;
+  name?: string;
+}
+
+interface RestCountryResponse {
+  names?: { common?: string; official?: string };
+  flag?: { url_svg?: string };
+  capitals?: { name?: string }[];
+  region?: string;
+  languages?: RestCountryLanguage[] | Record<string, RestCountryLanguage>;
+  currencies?: RestCountryCurrency[] | Record<string, RestCountryCurrency>;
+  population?: number;
+  timezones?: string[];
+}
+
+function parseLanguages(languages: RestCountryResponse['languages']): string[] {
+  if (!languages) return ['N/A'];
+  if (Array.isArray(languages)) {
+    return languages.map((lang) => lang.name ?? lang.english_name ?? lang.iso639_1 ?? 'N/A');
+  }
+  return Object.keys(languages);
+}
+
+function parseCurrencies(currencies: RestCountryResponse['currencies']): string[] {
+  if (!currencies) return ['N/A'];
+  if (Array.isArray(currencies)) {
+    return currencies.map((currency) => currency.code ?? currency.name ?? 'N/A');
+  }
+  return Object.entries(currencies).map(([code, currency]) =>
+    currency?.name ? `${code} (${currency.name})` : code
+  );
+}
+
+async function fetchRestCountry(fifaCode: string): Promise<CountryData | null> {
+  if (!API_KEY) {
+    console.error('REST Countries: falta configurar VITE_REST_COUNTRIES_KEY en .env');
+    return null;
+  }
+
+  const isoCode = FIFA_TO_ISO[fifaCode] ?? fifaCode;
+  const url = `${BASE_URL}/codes.alpha_3/${isoCode}`;
+
   try {
-    const wb = wbIso(iso3);
-    const res = await fetch(`https://api.worldbank.org/v2/country/${wb}?format=json`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    const d = json?.[1]?.[0];
-    if (!d) return null;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${API_KEY}` },
+    });
+
+    if (!res.ok) {
+      console.error(`REST Countries: error ${res.status} al buscar ${fifaCode}`, await res.text());
+      return null;
+    }
+
+    const body = await res.json();
+    const country: RestCountryResponse | undefined = body.data?.objects?.[0];
+
+    if (!country) return null;
+
     return {
-      name: d.name ?? '',
-      capital: d.capitalCity ?? 'N/A',
-      region: d.region?.value?.replace(' (excluding high income)', '') ?? 'N/A',
+      name: country.names?.common ?? fifaCode,
+      officialName: country.names?.official ?? fifaCode,
+      flag: country.flag?.url_svg ?? '',
+      capital: country.capitals?.[0]?.name ?? 'N/A',
+      region: country.region ?? 'N/A',
+      languages: parseLanguages(country.languages),
+      currencies: parseCurrencies(country.currencies),
+      population: country.population ?? 0,
+      timezones: country.timezones ?? ['N/A'],
     };
-  } catch {
+  } catch (error) {
+    console.error(`REST Countries: fallo de red al buscar ${fifaCode}`, error);
     return null;
   }
 }
 
-async function fetchWBPopulation(iso3: string): Promise<number | null> {
-  try {
-    const wb = wbIso(iso3);
-    const res = await fetch(
-      `https://api.worldbank.org/v2/country/${wb}/indicator/SP.POP.TOTL?format=json&per_page=1&mrv=1`
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    const value = json?.[1]?.[0]?.value;
-    return typeof value === 'number' ? value : null;
-  } catch {
-    return null;
-  }
-}
-
-// --- REST Countries ---
-async function fetchRestCountry(iso3: string): Promise<any | null> {
-  try {
-    const res = await fetch(`https://restcountries.com/v3.1/alpha/${iso3}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json?.[0] ?? null;
-  } catch {
-    return null;
-  }
-}
-
-// --- Función principal ---
-export async function fetchCountry(iso3: string): Promise<CountryData> {
-  const [restResult, wbInfoResult, wbPopResult] = await Promise.allSettled([
-    fetchRestCountry(iso3),
-    fetchWBCountry(iso3),
-    fetchWBPopulation(iso3),
-  ]);
-
-  const rest = restResult.status === 'fulfilled' ? restResult.value : null;
-  const info = wbInfoResult.status === 'fulfilled' ? wbInfoResult.value : null;
-  const pop  = wbPopResult.status  === 'fulfilled' ? wbPopResult.value  : null;
-  const local = LOCAL[iso3];
-
-  return {
-    name:         rest?.name?.common ?? info?.name ?? local?.name ?? iso3,
-    officialName: rest?.name?.official ?? local?.officialName ?? info?.name ?? iso3,
-    flag:         rest?.flags?.svg ?? local?.flag ?? '',
-    capital:      rest?.capital?.[0] ?? info?.capital ?? local?.capital ?? 'N/A',
-    region:       rest?.region ?? info?.region ?? local?.region ?? 'N/A',
-    languages:    rest?.languages ? Object.values(rest.languages) : local?.languages ?? [],
-    currencies:   rest?.currencies ? Object.keys(rest.currencies) : local?.currencies ?? [],
-    population:   rest?.population ?? pop ?? local?.population ?? 0,
-    timezones:    rest?.timezones ?? local?.timezones ?? [],
-  };
-}
-
-export default fetchCountry;
+export default fetchRestCountry;
