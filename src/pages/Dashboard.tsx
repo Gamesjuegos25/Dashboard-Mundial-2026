@@ -711,11 +711,85 @@ export default function Dashboard() {
 
   const jornadaMap = useMemo(() => buildJornadaMap(matches as Match[]), []);
   const sedes = useMemo(() => ["Todas", ...Array.from(new Set((matches as Match[]).map(m => m.venueName)))], []);
-  const equipos = useMemo(() => {
-    const t = (matches as Match[]).flatMap(m => [{ code: m.teamA, name: m.teamAName }, { code: m.teamB, name: m.teamBName }]);
-    const unique = new Map(t.map(x => [x.code, x.name]));
-    return [{ code: "Todas", name: "Todas las selecciones" }, ...Array.from(unique.entries()).map(([code, name]) => ({ code, name }))];
-  }, []);
+ const equipos = useMemo(() => {
+  // 📝 MAPA DE NOMBRES COMPLETO
+  const teamNames: Record<string, string> = {
+    // CONCACAF
+    "MEX": "México",
+    "USA": "Estados Unidos",
+    "CAN": "Canadá",
+    "HAI": "Haití",
+    "PAN": "Panamá",
+    "CUW": "Curazao",
+    
+    // CONMEBOL
+    "ARG": "Argentina",
+    "BRA": "Brasil",
+    "URU": "Uruguay",
+    "COL": "Colombia",
+    "ECU": "Ecuador",
+    "PAR": "Paraguay",
+    
+    // UEFA
+    "FRA": "Francia",
+    "ESP": "España",
+    "GER": "Alemania",
+    "ENG": "Inglaterra",
+    "POR": "Portugal",
+    "ITA": "Italia",
+    "NED": "Países Bajos",
+    "BEL": "Bélgica",
+    "CRO": "Croacia",
+    "SRB": "Serbia",
+    "TUR": "Turquía",
+    "SUI": "Suiza",
+    "SCO": "Escocia",
+    "CZE": "República Checa",
+    "BIH": "Bosnia y Herzegovina",
+    "AUT": "Austria",
+    "NOR": "Noruega",
+    "SWE": "Suecia",
+    "ALB": "Albania",
+    
+    // AFC (Asia)
+    "JPN": "Japón",
+    "KOR": "Corea del Sur",
+    "IRN": "Irán",
+    "KSA": "Arabia Saudita",
+    "AUS": "Australia",
+    "QAT": "Qatar",
+    "IRQ": "Irak",
+    "JOR": "Jordania",
+    "UZB": "Uzbekistán",
+    
+    // CAF (África)
+    "MAR": "Marruecos",
+    "SEN": "Senegal",
+    "NGA": "Nigeria",
+    "CMR": "Camerún",
+    "COD": "República Democrática del Congo",
+    "ZAF": "Sudáfrica",
+    "ALG": "Argelia",
+    "EGY": "Egipto",
+    "TUN": "Túnez",
+    "CIV": "Costa de Marfil",
+    "GHA": "Ghana",
+    "CPV": "Cabo Verde",
+    
+    // OFC (Oceanía)
+    "NZL": "Nueva Zelanda",
+  };
+
+  const t = (matches as Match[]).flatMap(m => [
+    { code: m.teamA, name: teamNames[m.teamA] || m.teamA },
+    { code: m.teamB, name: teamNames[m.teamB] || m.teamB }
+  ]);
+  const unique = new Map(t.map(x => [x.code, x.name]));
+  return [
+    { code: "Todas", name: "Todas las selecciones" }, 
+    ...Array.from(unique.entries()).map(([code, name]) => ({ code, name }))
+  ];
+}, []);
 
   const filtrados = useMemo(() => (matches as Match[]).filter(m => {
     const estado = getMatchStatus(m.date, m.timeLocal, m.timezone);
@@ -803,8 +877,19 @@ export default function Dashboard() {
               <option value="Finalizado">Finalizado</option>
             </select>
             <select value={filtroEquipo} onChange={e => setFiltroEquipo(e.target.value)} style={sel}>
-              {equipos.map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
-            </select>
+  {equipos.map(opt => (
+    <option 
+      key={opt.code}
+      value={opt.code}
+      style={{ 
+        color: 
+               opt.code === "Todas" ? "#ffffff" : "#FFFFFF"
+      }}
+    >
+      {opt.name}
+    </option>
+  ))}
+</select>
             <input type="date" value={filtroFecha} onChange={e => setFiltroFecha(e.target.value)} style={sel} />
             <select value={filtroPais} onChange={e => setFiltroPais(e.target.value)} style={sel}>
               <option value="Todos">País: Todos</option>
