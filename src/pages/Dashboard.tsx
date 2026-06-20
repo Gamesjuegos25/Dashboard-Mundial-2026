@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import matches from "../data/matches.json";
 import { squads, getFlagUrl, hostCountryName } from "../data/squads";
@@ -27,8 +28,7 @@ function getMatchStatus(date: string, timeLocal: string, timezone: string): stri
   const dateTimeStr = `${date}T${timeLocal}:00`;
   const dt = new Date(dateTimeStr + 'Z');
 
-  // Calculamos el offset real de la sede respecto a UTC, igual que en formatTime12h,
-  // para no interpretar timeLocal usando la zona horaria del navegador del usuario.
+ 
   const sedeFormatter = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -70,7 +70,7 @@ function buildJornadaMap(allMatches: Match[]): Record<number, number> {
   return map;
 }
 
-// ── DATOS ESTÁTICOS ───────────────────────────────────────────────
+
 
 const STADIUM_INFO: Record<string, { descripcion: string; capacidad: number; inaugurado: number; superficie: string }> = {
   "Estadio de Ciudad de México": { capacidad: 87523, inaugurado: 1966, superficie: "Césped natural", descripcion: "El estadio más icónico de México y uno de los más famosos del mundo. Es el único recinto que ha albergado dos finales de la Copa del Mundo (1970 y 1986). Aquí Diego Maradona marcó el 'Gol del Siglo' contra Inglaterra en 1986. Con capacidad para más de 87,000 espectadores, es el estadio más grande de América Latina." },
@@ -212,7 +212,7 @@ function Skeleton() {
   );
 }
 
-// ── TAB CLIMA ─────────────────────────────────────────────────────
+
 function WeatherTab({ match }: { match: Match }) {
   const [weather, setWeather] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -226,12 +226,12 @@ function WeatherTab({ match }: { match: Match }) {
   }, [match.latitude, match.longitude]);
 
   function weatherIcon(code: number): string {
-    if (code === 0) return "☀️";
-    if (code <= 3) return "⛅";
-    if (code <= 48) return "🌫️";
-    if (code <= 67) return "🌧️";
-    if (code <= 77) return "❄️";
-    if (code <= 82) return "🌦️";
+    if (code === 0) return "";
+    if (code <= 3) return "";
+    if (code <= 48) return "";
+    if (code <= 67) return "";
+    if (code <= 77) return "";
+    if (code <= 82) return "";
     return "⛈️";
   }
 
@@ -263,7 +263,7 @@ function WeatherTab({ match }: { match: Match }) {
               <div>
                 <div style={{ fontSize: 56, lineHeight: 1 }}>{weatherIcon(weather.current.weather_code)}</div>
                 <p style={{ color: C.grayLight, fontSize: 13, margin: "8px 0 4px" }}>{weatherDesc(weather.current.weather_code)}</p>
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: 0 }}>📍 {match.city}</p>
+                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: 0 }}> {match.city}</p>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ color: C.white, fontWeight: 900, fontSize: 52, lineHeight: 1 }}>{Math.round(weather.current.temperature_2m)}°</div>
@@ -271,8 +271,8 @@ function WeatherTab({ match }: { match: Match }) {
               </div>
             </div>
             <div style={{ display: "flex", gap: 16, marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-              <span style={{ color: C.grayLight, fontSize: 12 }}>💧 {weather.current.relative_humidity_2m}% humedad</span>
-              <span style={{ color: C.grayLight, fontSize: 12 }}>💨 {Math.round(weather.current.wind_speed_10m)} km/h viento</span>
+              <span style={{ color: C.grayLight, fontSize: 12 }}> {weather.current.relative_humidity_2m}% humedad</span>
+              <span style={{ color: C.grayLight, fontSize: 12 }}> {Math.round(weather.current.wind_speed_10m)} km/h viento</span>
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
@@ -294,7 +294,7 @@ function WeatherTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB SELECCIONES (ESTÁTICO) ────────────────────────────────────
+
 function TeamsTab({ match }: { match: Match }) {
   const [lado, setLado] = useState<"A" | "B">("A");
   const codigo = lado === "A" ? match.teamA : match.teamB;
@@ -326,7 +326,7 @@ function TeamsTab({ match }: { match: Match }) {
             </div>
             {info.titulos > 0 && (
               <div style={{ marginLeft: "auto", textAlign: "center" }}>
-                <div style={{ fontSize: 28 }}>🏆</div>
+                <div style={{ fontSize: 28 }}></div>
                 <p style={{ color: C.redBright, fontWeight: 900, fontSize: 20, margin: 0 }}>{info.titulos}</p>
                 <p style={{ color: C.gray, fontSize: 10, margin: 0, textTransform: "uppercase" }}>Títulos</p>
               </div>
@@ -334,10 +334,10 @@ function TeamsTab({ match }: { match: Match }) {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
             {[
-              { icon: "🌍", label: "Ranking FIFA", value: `#${info.ranking}` },
-              { icon: "🏅", label: "Confederación", value: info.confederacion },
-              { icon: "👥", label: "Convocados", value: `${(squads[codigo] ?? []).length} jugadores` },
-              { icon: "🏆", label: "Títulos mundiales", value: info.titulos === 0 ? "Ninguno" : `${info.titulos}` },
+              { icon: "", label: "Ranking FIFA", value: `#${info.ranking}` },
+              { icon: "", label: "Confederación", value: info.confederacion },
+              { icon: "", label: "Convocados", value: `${(squads[codigo] ?? []).length} jugadores` },
+              { icon: "", label: "Títulos mundiales", value: info.titulos === 0 ? "Ninguno" : `${info.titulos}` },
             ].map((stat, i) => (
               <div key={i} style={{ background: C.surface, borderRadius: 10, padding: "12px", border: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 20 }}>{stat.icon}</span>
@@ -358,7 +358,7 @@ function TeamsTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB ESTADIO (ESTÁTICO) ────────────────────────────────────────
+
 function StadiumTab({ match }: { match: Match }) {
   const estadio = STADIUM_INFO[match.venueName];
   const imgFallback = VENUE_IMAGES[match.venueName] ?? DEFAULT_STADIUM;
@@ -373,16 +373,16 @@ function StadiumTab({ match }: { match: Match }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,13,26,0.9), transparent)" }} />
         <div style={{ position: "absolute", bottom: 12, left: 14 }}>
           <h3 style={{ color: C.white, fontWeight: 900, fontSize: 18, margin: 0 }}>{match.venueName}</h3>
-          <p style={{ color: C.gray, fontSize: 12, margin: "3px 0 0" }}>📍 {match.city}</p>
+          <p style={{ color: C.gray, fontSize: 12, margin: "3px 0 0" }}> {match.city}</p>
         </div>
       </div>
       {estadio && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
-            { icon: "👥", label: "Capacidad", value: estadio.capacidad.toLocaleString() + " esp." },
-            { icon: "📅", label: "Inaugurado", value: estadio.inaugurado.toString() },
-            { icon: "🌱", label: "Superficie", value: estadio.superficie },
-            { icon: "🌎", label: "País anfitrión", value: hostCountryName[match.country] ?? getCountryName(match.country) },
+            { icon: "", label: "Capacidad", value: estadio.capacidad.toLocaleString() + " esp." },
+            { icon: "", label: "Inaugurado", value: estadio.inaugurado.toString() },
+            { icon: "", label: "Superficie", value: estadio.superficie },
+            { icon: "", label: "País anfitrión", value: hostCountryName[match.country] ?? getCountryName(match.country) },
           ].map((stat, i) => (
             <div key={i} style={{ background: C.surface, borderRadius: 10, padding: "12px", border: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 20 }}>{stat.icon}</span>
@@ -396,9 +396,9 @@ function StadiumTab({ match }: { match: Match }) {
       )}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         {[
-          { icon: "📅", text: `${match.date} · ${match.timeLocal} (hora sede)` },
-          { icon: "🇬🇹", text: `${formatTime12h(match.date, match.timeLocal, match.timezone)} hora Guatemala` },
-          { icon: "📍", text: match.city },
+          { icon: "", text: `${match.date} · ${match.timeLocal} (hora sede)` },
+          { icon: "Gt", text: `${formatTime12h(match.date, match.timeLocal, match.timezone)} hora Guatemala` },
+          { icon: "", text: match.city },
         ]
           .map((item, i) => <span key={i} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px", color: C.grayLight, fontSize: 12 }}>{item.icon} {item.text}</span>)}
       </div>
@@ -412,7 +412,7 @@ function StadiumTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB PAÍS (REST Countries API) ────────────────────────────────
+
 function FichaCard({ iso3 }: { iso3: string }) {
   const { data, isLoading, isError } = useCountry(iso3);
 
@@ -474,7 +474,7 @@ function CountryTab({ match }: { match: Match }) {
   return (
     <div style={{ padding: "20px 20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
 
-      {/* FICHAS — datos en vivo de REST Countries */}
+      {}
       <p style={{ color: C.greenBright, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: 0 }}>── Fichas de país</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <FichaCard iso3={match.teamA} />
@@ -509,7 +509,7 @@ function CountryTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB RESUMEN ───────────────────────────────────────────────────
+
 function SummaryTab({ match }: { match: Match }) {
   return (
     <div>
@@ -520,7 +520,7 @@ function SummaryTab({ match }: { match: Match }) {
   );
 }
 
-// ── TAB CONVOCADOS ────────────────────────────────────────────────
+
 function SquadTab({ match }: { match: Match }) {
   const [equipoTab, setEquipoTab] = useState<"A" | "B">("A");
   const codigoEquipo = equipoTab === "A" ? match.teamA : match.teamB;
@@ -571,7 +571,7 @@ function SquadTab({ match }: { match: Match }) {
   );
 }
 
-// ── MODAL JUGADOR ─────────────────────────────────────────────────
+
 function ModalJugador({ p, onClose }: { p: { name: string; club: string; age: number; pos: string }; onClose: () => void }) {
   const { data, loading } = useWiki(p.name);
   return (
@@ -590,14 +590,14 @@ function ModalJugador({ p, onClose }: { p: { name: string; club: string; age: nu
             </div>
             <div>
               <h3 style={{ color: C.white, fontWeight: 900, fontSize: 20, margin: 0 }}>{p.name}</h3>
-              <p style={{ color: C.gray, fontSize: 13, margin: "6px 0 0" }}>⚽ {p.club}</p>
+              <p style={{ color: C.gray, fontSize: 13, margin: "6px 0 0" }}> {p.club}</p>
             </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, padding: "14px 22px", borderBottom: `1px solid ${C.border}`, flexWrap: "wrap" }}>
           <span style={{ background: POS_COLOR[p.pos] ?? C.red, color: "white", fontSize: 11, fontWeight: 800, padding: "4px 14px", borderRadius: 6, textTransform: "uppercase" }}>{POS_LABEL[p.pos] ?? p.pos}</span>
-          <span style={{ background: C.surface, color: C.grayLight, fontSize: 12, fontWeight: 600, padding: "4px 14px", borderRadius: 6, border: `1px solid ${C.border}` }}>🎂 {p.age} años</span>
-          <span style={{ background: C.surface, color: C.grayLight, fontSize: 12, fontWeight: 600, padding: "4px 14px", borderRadius: 6, border: `1px solid ${C.border}` }}>🏟️ {p.club}</span>
+          <span style={{ background: C.surface, color: C.grayLight, fontSize: 12, fontWeight: 600, padding: "4px 14px", borderRadius: 6, border: `1px solid ${C.border}` }}> {p.age} años</span>
+          <span style={{ background: C.surface, color: C.grayLight, fontSize: 12, fontWeight: 600, padding: "4px 14px", borderRadius: 6, border: `1px solid ${C.border}` }}> {p.club}</span>
         </div>
         <div style={{ padding: "18px 22px 24px" }}>
           <p style={{ color: C.red, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, margin: "0 0 12px" }}>── Biografía</p>
@@ -608,7 +608,7 @@ function ModalJugador({ p, onClose }: { p: { name: string; club: string; age: nu
   );
 }
 
-// ── TARJETA JUGADOR ───────────────────────────────────────────────
+
 function TarjetaJugador({ p }: { p: { name: string; club: string; age: number; pos: string } }) {
   const [imgOk, setImgOk] = useState(true);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -636,17 +636,17 @@ function TarjetaJugador({ p }: { p: { name: string; club: string; age: number; p
   );
 }
 
-// ── MODAL PARTIDO ─────────────────────────────────────────────────
+
 function ModalPartido({ match, onClose }: { match: Match; onClose: () => void }) {
   const [tab, setTab] = useState<"resumen" | "convocados" | "selecciones" | "estadio">("resumen");
   const venueImg = VENUE_IMAGES[match.venueName] ?? DEFAULT_STADIUM;
   const estado = getMatchStatus(match.date, match.timeLocal, match.timezone);
 
   const TABS = [
-    { key: "resumen", label: "📊", titulo: "Resumen" },
-    { key: "convocados", label: "👥", titulo: "Convocados" },
-    { key: "selecciones", label: "🏴", titulo: "Selecciones" },
-    { key: "estadio", label: "🏟️", titulo: "Estadio" },
+    { key: "resumen", label: "", titulo: "Resumen" },
+    { key: "convocados", label: "", titulo: "Convocados" },
+    { key: "selecciones", label: "", titulo: "Selecciones" },
+    { key: "estadio", label: "", titulo: "Estadio" },
   ] as const;
 
   return (
@@ -694,7 +694,7 @@ function ModalPartido({ match, onClose }: { match: Match; onClose: () => void })
   );
 }
 
-// ── DASHBOARD PRINCIPAL ───────────────────────────────────────────
+
 const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const ALL_COUNTRIES = ["US","MX","CA"];
 
@@ -712,8 +712,10 @@ export default function Dashboard() {
   const jornadaMap = useMemo(() => buildJornadaMap(matches as Match[]), []);
   const sedes = useMemo(() => ["Todas", ...Array.from(new Set((matches as Match[]).map(m => m.venueName)))], []);
  const equipos = useMemo(() => {
-  // 📝 MAPA DE NOMBRES COMPLETO
+ 
+
   const teamNames: Record<string, string> = {
+
     // CONCACAF
     "MEX": "México",
     "USA": "Estados Unidos",
@@ -837,10 +839,10 @@ export default function Dashboard() {
               <p style={{ color: C.gray, fontSize: 14, margin: "0 0 0 12px" }}>EE.UU. 🇺🇸 · México 🇲🇽 · Canadá 🇨🇦 · 16 sedes · 48 selecciones</p>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <AnimCounter target={totalPartidos} label="Partidos" icon="⚽" />
-              <AnimCounter target={finalizados} label="Finalizados" icon="✅" />
-              <AnimCounter target={proximos} label="Próximos" icon="🔜" />
-              <AnimCounter target={enCurso} label="En curso" icon="🔴" />
+              <AnimCounter target={totalPartidos} label="Partidos" icon="" />
+              <AnimCounter target={finalizados} label="Finalizados" icon="" />
+              <AnimCounter target={proximos} label="Próximos" icon="" />
+              <AnimCounter target={enCurso} label="En curso" icon="" />
             </div>
           </div>
         </div>
@@ -952,14 +954,14 @@ export default function Dashboard() {
                   </div>
                   <div style={{ background: C.bg, borderRadius: 8, padding: "8px 12px", marginBottom: 14, border: `1px solid ${C.border}` }}>
                     <p style={{ color: C.gray, fontSize: 11, margin: "0 0 3px" }}>🇬🇹 {m.date} · {formatTime12h(m.date, m.timeLocal, m.timezone)} (Guatemala)</p>
-                    <p style={{ color: C.gray, fontSize: 11, margin: 0 }}>📍 {m.city}, {getCountryName(m.country)}</p>
+                    <p style={{ color: C.gray, fontSize: 11, margin: 0 }}> {m.city}, {getCountryName(m.country)}</p>
                   </div>
                   <button onClick={() => setPartidoSeleccionado(m)}
                     style={{ width: "100%", padding: "10px 0", background: `linear-gradient(135deg, ${C.red}, #a01020)`, border: "none", borderRadius: 10, color: C.white, fontWeight: 800, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, textTransform: "uppercase", letterSpacing: 0.5, boxShadow: `0 4px 20px ${C.redGlow}`, transition: "all 0.2s" }}
                     onMouseEnter={e => { e.currentTarget.style.background = `linear-gradient(135deg, ${C.redBright}, ${C.red})`; e.currentTarget.style.transform = "scale(1.02)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = `linear-gradient(135deg, ${C.red}, #a01020)`; e.currentTarget.style.transform = "scale(1)"; }}
                   >
-                    ⚽ Ver info del partido
+                     Ver info del partido
                   </button>
                 </div>
               </div>
@@ -967,7 +969,7 @@ export default function Dashboard() {
           })}
           {filtrados.length === 0 && (
             <div style={{ gridColumn: "1/-1", textAlign: "center", color: C.grayDark, padding: "80px 0" }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+              <div style={{ fontSize: 40, marginBottom: 12 }}></div>
               <p style={{ fontSize: 15, margin: 0 }}>No se encontraron partidos.</p>
             </div>
           )}
@@ -980,3 +982,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
