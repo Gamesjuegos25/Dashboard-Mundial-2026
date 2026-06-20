@@ -863,7 +863,7 @@ export default function Dashboard() {
             </button>
           </div>
           <div style={{ position: "relative", marginBottom: 12 }}>
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: C.gray }}>🔍</span>
+            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: C.gray }}></span>
             <input type="text" placeholder="Buscar equipo o sede..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
               style={{ ...sel, width: "100%", boxSizing: "border-box", paddingLeft: 38, paddingTop: 11, paddingBottom: 11 }} />
           </div>
