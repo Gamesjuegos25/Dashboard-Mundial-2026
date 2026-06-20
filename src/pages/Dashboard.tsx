@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import matches from "../data/matches.json";
 import { squads, getFlagUrl, hostCountryName } from "../data/squads";
 import { useCountry } from "../hooks/useCountry";
-import { toGuatemalaTime } from "../utils/time";
+import { formatTime12h } from "../utils/time";
 
 interface Match {
   matchId: number;
@@ -27,7 +27,7 @@ function getMatchStatus(date: string, timeLocal: string, timezone: string): stri
   const dateTimeStr = `${date}T${timeLocal}:00`;
   const dt = new Date(dateTimeStr + 'Z');
 
-  // Calculamos el offset real de la sede respecto a UTC, igual que en toGuatemalaTime,
+  // Calculamos el offset real de la sede respecto a UTC, igual que en formatTime12h,
   // para no interpretar timeLocal usando la zona horaria del navegador del usuario.
   const sedeFormatter = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
@@ -397,7 +397,7 @@ function StadiumTab({ match }: { match: Match }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         {[
           { icon: "📅", text: `${match.date} · ${match.timeLocal} (hora sede)` },
-          { icon: "🇬🇹", text: `${toGuatemalaTime(match.date, match.timeLocal, match.timezone)} hora Guatemala` },
+          { icon: "🇬🇹", text: `${formatTime12h(match.date, match.timeLocal, match.timezone)} hora Guatemala` },
           { icon: "📍", text: match.city },
         ]
           .map((item, i) => <span key={i} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px", color: C.grayLight, fontSize: 12 }}>{item.icon} {item.text}</span>)}
@@ -951,7 +951,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div style={{ background: C.bg, borderRadius: 8, padding: "8px 12px", marginBottom: 14, border: `1px solid ${C.border}` }}>
-                    <p style={{ color: C.gray, fontSize: 11, margin: "0 0 3px" }}>🇬🇹 {m.date} · {toGuatemalaTime(m.date, m.timeLocal, m.timezone)} (Guatemala)</p>
+                    <p style={{ color: C.gray, fontSize: 11, margin: "0 0 3px" }}>🇬🇹 {m.date} · {formatTime12h(m.date, m.timeLocal, m.timezone)} (Guatemala)</p>
                     <p style={{ color: C.gray, fontSize: 11, margin: 0 }}>📍 {m.city}, {getCountryName(m.country)}</p>
                   </div>
                   <button onClick={() => setPartidoSeleccionado(m)}
